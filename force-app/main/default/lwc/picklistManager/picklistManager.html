@@ -1,0 +1,289 @@
+<!-- sldsValidatorIgnore -->
+<!--
+  @description       : LWC to Create a New Picklist Field or Add new values to any existing Picklist Field
+  @author            : chayan.batabyal@neuraflash.com
+  @last modified on  : 09-11-2022
+  @last modified by  : chayan.batabyal@neuraflash.com
+-->
+<template>
+    <div style="background-color: white;" class="slds-is-relative">
+        <lightning-spinner if:true={showSpinner} alternative-text="Loading..." variant="brand" size="medium">
+        </lightning-spinner>
+
+        <lightning-accordion if:true={activeSection} active-section-name={activeSection}
+            onsectiontoggle={handleToggleSection}>
+            <lightning-accordion-section name="operationSelection" label={operationSelectionLabel}>
+                <lightning-combobox
+                    style="width: 50%;"
+                    class="slds-var-p-around_x-small"
+                    label=""
+                    variant="label-hidden"
+                    placeholder="Select Operation"
+                    options={operationOptions}
+                    value={selectedOperation}
+                    onchange={handleOperationChange}
+                    required>
+                </lightning-combobox>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayObjectSelectionSection}
+                name="objectSelection" label={objectSelectionLabel}>
+                <lightning-combobox
+                    style="width: 50%;"
+                    class="slds-var-p-around_x-small"
+                    label=""
+                    variant="label-hidden"
+                    placeholder="Select object"
+                    options={objectOptions}
+                    value={selectedObject}
+                    onchange={handleObjectChange}
+                    required>
+                </lightning-combobox>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayPicklistSelectionSection}
+                name="picklistSelectionSection" label={picklistSelectionSectionLabel}>
+                <lightning-combobox
+                    style="width: 50%;"
+                    class="slds-var-p-around_x-small"
+                    label=""
+                    variant="label-hidden"
+                    placeholder="Select a picklist field to update"
+                    options={existingPicklistFields}
+                    value={selectedPicklistField}
+                    onchange={handlePicklistFieldChange}
+                    required>
+                </lightning-combobox>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayFieldDetailsSection}
+                name="fieldDetails" label="Field Details">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="6" class="slds-var-p-around_xx-small">
+                        <lightning-input data-type="label" type="text" label="Label"
+                            class="fieldDetail fieldLabel" min-length="1" max-length="40"
+                            onchange={handleFieldDetailChange} onblur={handleLabelBlur}
+                            field-level-help={fieldLevelHelp.fieldLabel}
+                            value={fieldDetail.label} required>
+                        </lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6" class="slds-var-p-around_xx-small">
+                        <lightning-input data-type="name" type="text" label="API Name"
+                            class="fieldDetail fieldName" onchange={handleFieldDetailChange}
+                            value={fieldDetail.name} onblur={checkNameValidity}
+                            max-length="40" field-level-help={fieldLevelHelp.fieldName}
+                            message-when-pattern-mismatch={fieldNamePatternMismatch}
+                            pattern="^[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z0-9]+)*(__)?$" required>
+                        </lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6" if:true={globalValueSetOptions}
+                        class="slds-var-p-horizontal_xx-small slds-var-p-vertical_small">
+                        <lightning-combobox options={picklistValueTypeOptions}
+                            label="Picklist Value Type" value={picklistValueType}
+                            class="picklistValueType" onchange={handlePicklistValueTypeChange} required>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6" if:true={displayGlobalOptions}
+                        class="slds-var-p-horizontal_xx-small slds-var-p-vertical_small">
+                        <lightning-combobox options={globalValueSetOptions}
+                            label="Select a Global Picklist Value Set" value={valueSetName}
+                            class="fieldDetail" onchange={handleGlobalPicklistValueSetChange} required>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="12" if:true={displayNewFieldValueOptions}
+                        class="slds-var-p-around_xx-small">
+                        <lightning-textarea label="Enter the values" onchange={handleNewPicklistValueChange}
+                            class="newPicklistValues" required>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6"
+                        class="slds-var-p-horizontal_xx-small slds-var-p-vertical_small">
+                        <lightning-combobox data-type="type_x" options={picklistTypeOptions}
+                            label="Picklist Type" value={fieldDetail.type_x}
+                            class="fieldDetail" onchange={handleFieldDetailChange} required>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item if:true={displayVisibleLines} size="6"
+                        class="slds-var-p-around_xx-small">
+                        <lightning-input data-type="visibleLines" type="number" label="# Visible Lines"
+                            class="fieldDetail" min="3" max="10"
+                            onchange={handleFieldDetailChange}
+                            value={fieldDetail.visibleLines} required>
+                        </lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size={requiredFieldSize} class="slds-var-p-around_xx-small">
+                        <lightning-input data-type="required" type="checkbox"
+                            label="Required" variant="label-stacked" checked={fieldDetail.required}
+                            class="fieldDetail" onchange={handleFieldDetailChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6" class="slds-var-p-around_xx-small">
+                        <lightning-textarea data-type="description" label="Description"
+                            class="fieldDetail" onchange={handleFieldDetailChange}
+                            value={fieldDetail.description} max-length="1000">
+                        </lightning-textarea>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="6" class="slds-var-p-around_xx-small">
+                        <lightning-textarea data-type="inlineHelpText" label="Help Text"
+                            class="fieldDetail" onchange={handleFieldDetailChange}
+                            value={fieldDetail.inlineHelpText} max-length="510"
+                            field-level-help={fieldLevelHelp.inlineHelpText}>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item if:true={displayNewFieldValueOptions} size="6"
+                        class="slds-var-p-around_xx-small">
+                        <lightning-input type="checkbox" label="Display alphabetically"
+                            variant="label-stacked" data-type="isSorted"
+                            onchange={handleOtherFieldDetailChange} checked={otherFieldDetail.isSorted}
+                            field-level-help={fieldLevelHelp.isSorted}>
+                        </lightning-input>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item if:true={displayNewFieldValueOptions} size="6"
+                        class="slds-var-p-around_xx-small">
+                        <lightning-input type="checkbox" label="Restrict Picklist Values"
+                            variant="label-stacked" data-type="isRestricted"
+                            onchange={handleOtherFieldDetailChange}
+                            checked={otherFieldDetail.isRestricted}
+                            field-level-help={fieldLevelHelp.isRestricted}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayAddNewPicklistValueSection}
+                name="addNewPicklistValue" label="Add New Picklist Value(s)">
+                <lightning-layout>
+                    <lightning-layout-item size="12" class="slds-var-p-around_xx-small">
+                        <lightning-textarea label="Enter the values"
+                            onchange={handleNewPicklistValueChange}
+                            class="newPicklistValues" required>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayValueEditSection}
+                name="valueEdit" label="Edit Picklist Value(s)">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" class="slds-var-p-around_xx-small">
+                        <label>Edit Values - if required</label>
+                        <lightning-helptext content={dtHelptextContent}></lightning-helptext>
+                        <br/><br/>
+
+                        <div style="height: 250px;">
+                            <c-custom-lightning-datatable
+                                key-field="rowNumber"
+                                data={data}
+                                columns={columns}
+                                oncellchange={handleCellChange}
+                                draft-values={draftValues}
+                                errors={dtErrors}
+                                onpicklistchanged={handlePicklistChanged}
+                                onstagenamedescchanged={handleStageDescChanged}
+                                show-row-number-column
+                                hide-checkbox-column
+                                suppress-bottom-bar>
+                            </c-custom-lightning-datatable>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayRTOrBPOptionsSection}
+                name="rtOrBPOptions" label={rtOrBPOptionSectionLabel}>
+                <lightning-layout multiple-rows>
+                    <template for:each={recordTypeOrBusinessProcessInfo} for:item="eachRecord">
+                        <lightning-layout-item size="9" key={eachRecord.value} class="slds-var-p-top_x-small">
+                            <lightning-dual-listbox
+                                class="rtOrBPDualListBox"
+                                data-name={eachRecord.value}
+                                label={eachRecord.label}
+                                source-label="Available Options"
+                                selected-label="Selected Options"
+                                options={data}
+                                onchange={handleRTOrBPInfoChange}
+                                disable-reordering>
+                            </lightning-dual-listbox>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item if:true={displayDefultForRTOrBP} size="3"
+                            key={eachRecord.value} class="slds-var-p-top_x-large slds-var-p-left_small">
+                            <lightning-combobox
+                                data-name={eachRecord.value}
+                                label="Default Value"
+                                options={eachRecord.selectedValues}
+                                onchange={handleRTOrBPDefaultChange}
+                                value={eachRecord.defaultValue}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </lightning-accordion-section>
+
+            <lightning-accordion-section if:true={displayFLSSection}
+                name="FLSSection" label="Set Field-Level Security">
+                <table class="FLSTable">
+                    <thead>
+                        <td width="70%">Profile Name</td>
+
+                        <td width="15%">
+                            <lightning-input type="checkbox" label="Visible" data-name="readableToAll"
+                                onchange={handleFLSChange} class="readableToAll" checked="true">
+                            </lightning-input>
+                        </td>
+
+                        <td width="15%">
+                            <lightning-input type="checkbox" label="Read-Only" data-name="readOnlyToAll"
+                                onchange={handleFLSChange} class="readOnlyToAll">
+                            </lightning-input>
+                        </td>
+                    </thead>
+
+                    <template for:each={profileFLSDetails} for:item="eachProfile">
+                        <tr key={eachProfile.value}>
+                            <td width="70%">{eachProfile.label}</td>
+
+                            <td width="15%">
+                                <lightning-input data-type="readable" data-value={eachProfile.value}
+                                    type="checkbox" label="" variant="label-hidden"
+                                    checked={eachProfile.readable} onchange={handleFLSChange}>
+                                </lightning-input>
+                            </td>
+
+                            <td width="15%">
+                                <lightning-input data-type="readOnly" data-value={eachProfile.value}
+                                    type="checkbox" label="" variant="label-hidden"
+                                    checked={eachProfile.readOnly} onchange={handleFLSChange}>
+                                </lightning-input>
+                            </td>
+                        </tr>
+                    </template>
+                </table>
+            </lightning-accordion-section>
+        </lightning-accordion>
+
+        <div if:true={displayButtons} style="text-align: center; padding-bottom: 10px;">
+            <lightning-button if:true={displayPreviousButton} label="Previous" onclick={handlePreviousClick}>
+            </lightning-button>
+
+            <lightning-button label={buttonLabelSaveOrNext} onclick={handleSaveOrNext}
+                variant="brand" class="slds-var-p-left_xx-small">
+            </lightning-button>
+
+            <lightning-button label="Cancel" onclick={resetAllValues}
+                variant="base" class="slds-var-p-left_xx-small">
+            </lightning-button>
+        </div>
+    </div>
+</template>

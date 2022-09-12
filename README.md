@@ -42,8 +42,8 @@ __Probable Future Enhancements:__
     1. Logger facility to log each of the errors faced while using the app.
     2. While creating a picklist field, availability to add FLS to the available permission sets too.
     3. Retry mechanism to add values to Record Types upon failure.
-    
-    
+
+
 # Screenshots
 
 <img width="960" alt="Screenshot 2022-09-11 at 7 41 44 PM" src="https://user-images.githubusercontent.com/31616825/189613348-ee9d1bb4-282d-4e09-a1d2-2b69ead9bc67.png">

@@ -1,0 +1,87 @@
+.picklist-container{
+    width : 90%;
+    margin: 0 auto;
+}
+
+.picklist-container .slds-dropdown{
+    position: relative !important;
+    z-index: 99 !important;
+    max-height: 100px;
+    overflow: scroll;
+}
+
+[lightning-combobox_combobox-host]{
+    margin-bottom: 10px;
+    margin-top: -10px;
+}
+
+th.slds-has-focus, td.slds-has-focus{
+    box-shadow: none !important;
+}
+
+.slds-dropdown_fluid, .slds-dropdown--fluid {
+    min-width: unset;
+    max-width: 100%;
+    width: 100%;
+}
+
+.picklist-container .slds-listbox_vertical .slds-listbox__option_plain{
+    padding: 2px 4px;
+}
+
+.picklist-container .slds-media_small .slds-media__figure{
+    margin-right: 4px;
+    width: 15px;
+}
+
+c-custom-lightning-datatable th[aria-label="Label"] div.slds-cell-fixed,
+c-custom-lightning-datatable th[aria-label="Value"] div.slds-cell-fixed,
+c-custom-lightning-datatable th[aria-label="Forecast Category"] div.slds-cell-fixed,
+c-custom-lightning-datatable th[aria-label="Probability"] div.slds-cell-fixed{
+    border-left: solid var(--lwc-colorBorderError,rgb(234, 0, 30));
+    border-left-width: thick;
+}
+
+c-custom-lightning-datatable td[data-label="Forecast Category"].slds-has-error,
+c-custom-lightning-datatable tr:hover td[data-label="Forecast Category"].slds-has-error{
+    background-color: var(--lwc-colorBackgroundHighlight,rgb(250, 255, 189));
+    box-shadow: var(--lwc-colorBorderError,rgb(234, 0, 30)) 0 0 0 2px inset !important;
+}
+
+c-custom-lightning-datatable td[data-label="Forecast Category"].slds-has-error button,
+c-custom-lightning-datatable tr:hover td[data-label="Forecast Category"].slds-has-error button{
+    background-color: var(--lwc-colorBackgroundHighlight,rgb(250, 255, 189)) !important;
+}
+
+lightning-primitive-datatable-tooltip-bubble ul{
+    margin-left: unset !important;
+}
+
+lightning-input[data-type="required"] > div.slds-form-element__control{
+    padding: 5px 0;
+}
+
+.FLSTable thead{
+    background-color: rgb(242, 243, 243);
+    font-weight: bold;
+}
+
+.FLSTable tr {
+    border-bottom: 0.5px solid rgb(211, 211, 211);
+}
+
+.FLSTable > tr:hover{
+    background-color: rgb(227, 243, 255)
+}
+
+.FLSTable td {
+    padding: 5px;
+}
+
+.FLSTable td:not(:first-child) {
+    text-align: center;
+}
+
+span.forceActionsText{
+    white-space: break-spaces !important;
+}
